@@ -16,19 +16,28 @@ import static org.hamcrest.Matchers.notNullValue;
 import static praktikum.steps.UserSteps.createUser;
 
 public class CreateUserTest extends BaseApiTest {
+
+    private Response response;
+
     @After
     public void tearDown() {
-        if (accessToken != null) {
-            UserSteps.deleteUser(accessToken);
+        if (response != null) {
+            try {
+                String token = UserSteps.extractAccessToken(response);
+                if (token != null) {
+                    UserSteps.deleteUser(token);
+                }
+            } catch (Exception ignored) {
+            }
         }
     }
 
     @Test
     @DisplayName("Успешное создание нового пользователя")
-    @Description("Код успешного создания: 200 OK, а не 201 Created")
+    @Description("Проверка создания уникального пользователя с валидными данными. Ожидается статус 200 OK и токен в ответе.")
     public void testUserCreateSuccess() {
         UserModel user = UserData.getRandomUser();
-        Response response = createUser(user);
+        response = createUser(user);
 
         response.then()
                 .log().all()
@@ -39,20 +48,19 @@ public class CreateUserTest extends BaseApiTest {
                 .body("user.email", equalTo(user.getEmail()))
                 .body("user.name", equalTo(user.getName()));
 
-        accessToken = UserSteps.extractAccessToken(response);
     }
 
     @Test
     @DisplayName("Получение ошибки при создании существующего пользователя")
+    @Description("Проверка запрета повторной регистрации. Создаем пользователя, затем пытаемся создать дубликат с тем же email")
     public void testCreateSameUserError() {
         UserModel user = UserData.getRandomUser();
 
-        Response response = createUser(user);
+        response = createUser(user);
         response.then()
                 .log().all()
                 .statusCode(HTTP_OK)
                 .body("success", equalTo(true));
-        accessToken = UserSteps.extractAccessToken(response);
 
         Response errorResponse = createUser(user);
         errorResponse.then()
@@ -63,6 +71,7 @@ public class CreateUserTest extends BaseApiTest {
     }
     @Test
     @DisplayName("Получение ошибки при создании пользователя без email(null)")
+    @Description("Проверка валидации обязательного поля email при передаче значения null")
     public void testCreateUserWithNullEmailError() {
         UserModel user = UserData.getRandomUser();
         user.setEmail(null);
@@ -75,6 +84,7 @@ public class CreateUserTest extends BaseApiTest {
     }
     @Test
     @DisplayName("Получение ошибки при создании пользователя без email(незаполненное поле))")
+    @Description("Проверка валидации обязательного поля email при передаче пустой строки")
     public void testCreateUserWithNoEmailError() {
         UserModel user = UserData.getRandomUser();
         user.setEmail("");
@@ -87,6 +97,7 @@ public class CreateUserTest extends BaseApiTest {
     }
     @Test
     @DisplayName("Получение ошибки при создании пользователя без пароля(null)")
+    @Description("Проверка валидации обязательного поля password при передаче значения null")
     public void testCreateUserWithNullPasswordError() {
         UserModel user = UserData.getRandomUser();
         user.setPassword(null);
@@ -99,6 +110,7 @@ public class CreateUserTest extends BaseApiTest {
     }
     @Test
     @DisplayName("Получение ошибки при создании пользователя без пароля(незаполненное поле)")
+    @Description("Проверка валидации обязательного поля password при передаче пустой строки")
     public void testCreateUserWithNoPasswordError() {
         UserModel user = UserData.getRandomUser();
         user.setPassword("");
@@ -111,6 +123,7 @@ public class CreateUserTest extends BaseApiTest {
     }
     @Test
     @DisplayName("Получение ошибки при создании пользователя без имени(null)")
+    @Description("Проверка валидации обязательного поля name при передаче значения null")
     public void testCreateUserWithNullNameError() {
         UserModel user = UserData.getRandomUser();
         user.setName(null);
@@ -123,6 +136,7 @@ public class CreateUserTest extends BaseApiTest {
     }
     @Test
     @DisplayName("Получение ошибки при создании пользователя без имени(незаполненное поле)")
+    @Description("Проверка валидации обязательного поля name при передаче пустой строки")
     public void testCreateUserWithNoNameError() {
         UserModel user = UserData.getRandomUser();
         user.setName("");

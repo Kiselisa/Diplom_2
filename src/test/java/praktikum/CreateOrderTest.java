@@ -1,5 +1,6 @@
 package praktikum;
 
+import io.qameta.allure.Description;
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
 import org.junit.After;
@@ -37,6 +38,7 @@ public class CreateOrderTest extends BaseApiTest {
 
     @Test
     @DisplayName("Создание заказа с авторизацией")
+    @Description("Проверка успешного создания заказа авторизованным пользователем. Ожидается привязка заказа к профилю и статус 200 OK")
     public void testCreateOrderWithAuthSuccess() {
         UserModel user = UserData.getRandomUser();
         Response userResponse = UserSteps.createUser(user);
@@ -64,6 +66,7 @@ public class CreateOrderTest extends BaseApiTest {
 
     @Test
     @DisplayName("Создание заказа без авторизации")
+    @Description("Проверка возможности создания заказа неавторизованным пользователем. Ожидается статус 200 OK и номер созданного заказа")
     public void testCreateOrderWithoutAuthSuccess() {
         List<String> orderIngredients = List.of(
                 validIngredients.get(0),
@@ -82,6 +85,7 @@ public class CreateOrderTest extends BaseApiTest {
 
     @Test
     @DisplayName("Создание заказа с ингредиентами")
+    @Description("Проверка успешного создания заказа с перечислением списка валидных хешей ингредиентов. Ожидается статус 200 OK")
     public void testCreateOrderWithIngredients() {
         List<String> orderIngredients = List.of(
                 validIngredients.get(0),
@@ -101,6 +105,7 @@ public class CreateOrderTest extends BaseApiTest {
 
     @Test
     @DisplayName("Получение ошибки при создании заказа без ингредиентов (пустой список)")
+    @Description("Проверка валидации при отправке заказа с пустым списком ингредиентов. Ожидается статус 400 Bad Request и сообщение об ошибке")
     public void testCreateOrderWithoutIngredientsError() {
         OrderModel order = new OrderModel(new ArrayList<>());
 
@@ -114,6 +119,7 @@ public class CreateOrderTest extends BaseApiTest {
 
     @Test
     @DisplayName("Получение ошибки при создании заказа с неверным хешем ингредиента")
+    @Description("Проверка поведения системы при передаче несуществующих или измененных хешей ингредиентов. Ожидается статус 500 Internal Server Error")
     public void testCreateOrderWithInvalidIngredientHashError() {
         List<String> invalidIngredients = List.of(
                 validIngredients.get(0),

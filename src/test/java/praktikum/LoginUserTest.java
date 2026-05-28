@@ -1,5 +1,6 @@
 package praktikum;
 
+import io.qameta.allure.Description;
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
 import org.junit.After;
@@ -35,6 +36,7 @@ public class LoginUserTest extends BaseApiTest {
 
     @Test
     @DisplayName("Успешный логин существующего пользователя")
+    @Description("Проверка авторизации пользователя с валидными учетными данными. Ожидается статус 200 OK")
     public void userLoginSuccess() {
         UserLogin credentials = new UserLogin(user.getEmail(), user.getPassword());
         UserSteps.loginUser(credentials)
@@ -49,6 +51,7 @@ public class LoginUserTest extends BaseApiTest {
     }
     @Test
     @DisplayName("Получение ошибки при входе пользователя в систему с неправильным паролем")
+    @Description("Проверка запрета авторизации при вводе невалидного пароля. Ожидается статус 401 Unauthorized и сообщение об ошибке")
     public void testUserLoginWithWrongPasswordError() {
         UserLogin credentials = new UserLogin(user.getEmail(), user.getPassword() + 23);
         UserSteps.loginUser(credentials)
@@ -60,6 +63,7 @@ public class LoginUserTest extends BaseApiTest {
     }
     @Test
     @DisplayName("Получение ошибки при входе пользователя в систему с неправильным email")
+    @Description("Проверка запрета авторизации при вводе незарегистрированного email. Ожидается статус 401 Unauthorized и сообщение об ошибке")
     public void testUserLoginWithWrongEmailError() {
         UserLogin credentials = new UserLogin(user.getEmail() + "ru", user.getPassword());
         UserSteps.loginUser(credentials)
